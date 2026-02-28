@@ -39,11 +39,53 @@ def create_produto():
     result = products_collection.insert_one(produto)
     return jsonify({'id': str(result.inserted_id), 'mensagem': 'Produto criado com sucesso'}), 201
 
+@app.route('/api/produtos/<id>', methods=['PUT'])
+def update_produto(id):
+    """Atualiza um produto existente"""
+    try:
+        produto_id = ObjectId(id)
+    except:
+        return jsonify({'erro': 'ID inválido'}), 400
+    
+    data = request.get_json()
+    
+    if not all(k in data for k in ['nome', 'preco', 'categoria']):
+        return jsonify({'erro': 'Campos obrigatórios: nome, preco, categoria'}), 400
+    
+    atualizado = {
+        'nome': data['nome'],
+        'preco': float(data['preco']),
+        'categoria': data['categoria']
+    }
+    
+    result = products_collection.update_one({'_id': produto_id}, {'$set': atualizado})
+    
+    if result.matched_count == 0:
+        return jsonify({'erro': 'Produto não encontrado'}), 404
+    
+    return jsonify({'mensagem': 'Produto atualizado com sucesso'}), 200
+
 @app.route('/produtos')
 def produtos():
     """Exibe página com tabela de produtos"""
     produtos_list = list(products_collection.find({}, {'_id': 1, 'nome': 1, 'preco': 1, 'categoria': 1}))
     return render_template('produtos.html', produtos=produtos_list)
+
+@app.route('/produtos/<id>/editar')
+def editar_produto(id):
+    """Exibe formulário para editar um produto"""
+    try:
+        produto_id = ObjectId(id)
+    except:
+        return "ID inválido", 400
+    
+    produto = products_collection.find_one({'_id': produto_id})
+    
+    if not produto:
+        return "Produto não encontrado", 404
+    
+    produto['_id'] = str(produto['_id'])
+    return render_template('editar_produto.html', produto=produto)
 
 if __name__ == '__main__':
     # development server; in production we use gunicorn
