@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produtos</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen py-8">
+    <div class="max-w-6xl mx-auto px-4">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Catálago de Produtos</h1>
+            <p class="text-gray-600">Lista de todos os produtos disponíveis</p>
+        </div>
+
+        <!-- Table Container -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            {% if produtos %}
+            <table class="w-full divide-y divide-gray-200">
+                <thead class="bg-blue-600">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-white">Nome</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-white">Categoria</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-white">Preço</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for produto in produtos %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 text-sm text-gray-800 font-medium">{{ produto.nome }}</td>
+                        <td class="px-6 py-4 text-sm">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                                {% if produto.categoria == 'Eletrônicos' %}
+                                    bg-purple-100 text-purple-800
+                                {% elif produto.categoria == 'Periféricos' %}
+                                    bg-blue-100 text-blue-800
+                                {% elif produto.categoria == 'Monitores' %}
+                                    bg-green-100 text-green-800
+                                {% else %}
+                                    bg-gray-100 text-gray-800
+                                {% endif %}
+                            ">
+                                {{ produto.categoria }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-800 font-semibold">
+                            R$ {{ "%.2f"|format(produto.preco) }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="text-center py-12">
+                <p class="text-gray-500 text-lg">Nenhum produto cadastrado</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-8 text-center">
+            <a href="/" class="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                Voltar para Home
+            </a>
+        </div>
+    </div>
+</body>
+</html>
