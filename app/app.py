@@ -87,6 +87,21 @@ def editar_produto(id):
     produto['_id'] = str(produto['_id'])
     return render_template('editar_produto.html', produto=produto)
 
+@app.route('/api/produtos/<id>', methods=['DELETE'])
+def delete_produto(id):
+    """Deleta um produto"""
+    try:
+        produto_id = ObjectId(id)
+    except:
+        return jsonify({'erro': 'ID inválido'}), 400
+    
+    result = products_collection.delete_one({'_id': produto_id})
+    
+    if result.deleted_count == 0:
+        return jsonify({'erro': 'Produto não encontrado'}), 404
+    
+    return jsonify({'mensagem': 'Produto deletado com sucesso'}), 200
+
 if __name__ == '__main__':
     # development server; in production we use gunicorn
     app.run(host='0.0.0.0', port=5000)

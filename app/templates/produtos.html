@@ -50,9 +50,12 @@
                             R$ {{ "%.2f"|format(produto.preco) }}
                         </td>
                         <td class="px-6 py-4 text-sm">
-                            <a href="/produtos/{{ produto._id }}/editar" class="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">
+                            <a href="/produtos/{{ produto._id }}/editar" class="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors mr-2">
                                 ✏️ Editar
                             </a>
+                            <button onclick="deletarProduto('{{ produto._id }}', '{{ produto.nome }}')" class="inline-block bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors">
+                                🗑️ Excluir
+                            </button>
                         </td>
                     </tr>
                     {% endfor %}
@@ -72,5 +75,28 @@
             </a>
         </div>
     </div>
+
+    <script>
+        async function deletarProduto(id, nome) {
+            if (confirm(`Tem certeza que deseja excluir o produto "${nome}"?`)) {
+                try {
+                    const response = await fetch(`/api/produtos/${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        alert('✅ ' + data.mensagem);
+                        location.reload();
+                    } else {
+                        const error = await response.json();
+                        alert('❌ Erro: ' + error.erro);
+                    }
+                } catch (error) {
+                    alert('❌ Erro ao deletar: ' + error.message);
+                }
+            }
+        }
+    </script>
 </body>
 </html>
