@@ -67,9 +67,36 @@ def update_produto(id):
 
 @app.route('/produtos')
 def produtos():
-    """Exibe página com tabela de produtos"""
-    produtos_list = list(products_collection.find({}, {'_id': 1, 'nome': 1, 'preco': 1, 'categoria': 1}))
-    return render_template('produtos.html', produtos=produtos_list)
+    """Exibe página com tabela de produtos com paginação"""
+    # paginação básica usando query param `page`
+    try:
+        page = int(request.args.get('page', '1'))
+        if page < 1:
+            page = 1
+    except ValueError:
+        page = 1
+    per_page = 5
+
+    total = products_collection.count_documents({})
+    total_pages = (total + per_page - 1) // per_page
+
+    skip = (page - 1) * per_page
+    produtos_list = list(
+        products_collection.find({}, {'_id': 1, 'nome': 1, 'preco': 1, 'categoria': 1})
+        .skip(skip)
+        .limit(per_page)
+    )
+
+    # exportar id como string para template
+    for produto in produtos_list:
+        produto['_id'] = str(produto['_id'])
+
+    return render_template(
+        'produtos.html',
+        produtos=produtos_list,
+        page=page,
+        total_pages=total_pages,
+    )
 
 @app.route('/produtos/<id>/editar')
 def editar_produto(id):
